@@ -1,9 +1,11 @@
 
 package io.pivotal.examples.RedisExample;
 
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,8 +113,34 @@ public class RedisInfoController {
         return jedis.get(key);
     }
 
-    @RequestMapping("/kill") 
-    void killServer() {
+    @RequestMapping("/keys")
+    Set<String> getAllKeys() {
+
+        if (jedis == null || !jedis.isConnected()) {
+            jedis = getJedisConnection();
+        }
+
+        return jedis.keys("*");
+    }
+
+    @RequestMapping("/keys/{key}")
+    public String get(@PathVariable String key) {
+
+        return jedis.get(key);
+    }
+
+    @RequestMapping("/flush")
+    public void flush() {
+
+        if (jedis == null || !jedis.isConnected()) {
+            jedis = getJedisConnection();
+        }
+
+        jedis.flushAll();
+    }
+
+    @RequestMapping("/kill")
+    public void killServer() {
         LOG.log(Level.WARNING, "About to kill the service!");
         System.exit(0);
     }
